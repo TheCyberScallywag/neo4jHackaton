@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% from "macros.html" import skills, match_card, exclusions %}
+{% block title %}{{ project.title }}{% endblock %}
+{% block content %}
+<p><a href="/o/{{ org.id }}/projects">← {{ org.name }} projects</a></p>
+<h1>{{ project.title }}</h1>
+<p class="meta">{{ org.name }} · {{ project.cause_name }} · revision {{ project.revision }}</p>
+<p>{{ project.summary }}</p>
+<p>Required: {{ skills(project.required_names) }}</p>
+{% if project.optional_names %}<p>Optional: {{ skills(project.optional_names, "opt") }}</p>{% endif %}
+
+{% if mine %}
+<h2>Your fit</h2>
+{% if mine.withheld %}<p class="pending">{{ mine.withheld.reason }}</p>
+{% else %}
+  {% set fit = mine.matches|selectattr("project", "equalto", project.project)|list %}
+  {% set hidden = mine.excluded|selectattr("project", "equalto", project.project)|list %}
+  {% if fit %}{{ match_card(fit[0], show_org=False) }}
+  {% elif hidden %}{{ exclusions(hidden) }}
+  {% else %}<p class="muted">None of the skills you offer are required here.</p>{% endif %}
+{% endif %}
+{% endif %}
+
+{% if team is not none %}
+<h2>Candidates and team <span class="muted">({{ "you lead this project" if is_lead else "org admins" }})</span></h2>
+<table class="placements">
+  <thead><tr><th>Volunteer</th><th>Matched skills</th><th>Status</th><th>Volunteer</th><th>Lead</th><th></th></tr></thead>
+  <tbody>
+  {% for p in team %}
+    <tr data-volunteer="{{ p.display_name }}"><td>{{ p.display_name }}</td><td>{{ p.matched_skills|join(", ") }}</td>
+      <td><span class="state {{ p.state }}">{{ p.state_label }}</span></td>
+      <td>{{ p.volunteer_said or "—" }}</td><td>{{ p.lead_said or "—" }}</td>
+      <td>
+      {% if p.state == "eligible" and not p.lead_said %}
+        {% for answer, label in (("yes", "Accept"), ("no", "Decline")) %}
+        <form method="post" action="/o/{{ org.id }}/projects/{{ project.project }}/candidates/{{ p.volunteer_id }}/answer" class="inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf }}"><input type="hidden" name="version" value="{{ p.version }}">
+          <input type="hidden" name="answer" value="{{ answer }}"><button type="submit" class="{{ 'secondary' if answer == 'no' }}">{{ label }}</button>
+        </form>
+        {% endfor %}
+      {% elif p.state == "team" and p.volunteer_id != session.user_id %}
+        <form method="post" action="/o/{{ org.id }}/projects/{{ project.project }}/team/{{ p.volunteer_id }}/remove" class="inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf }}">
+          <input name="reason" required minlength="3" placeholder="Reason" aria-label="Reason for removing {{ p.display_name }}">
+          <button type="submit" class="secondary">Remove</button>
+        </form>
+      {% endif %}
+      </td></tr>
+  {% else %}<tr><td colspan="6" class="muted">No eligible volunteers yet.</td></tr>{% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+{% if coverage %}
+<h2>Candidates and coverage <span class="muted">(reviewers only)</span></h2>
+{% if coverage.withheld %}<p class="pending">{{ coverage.withheld.reason }}</p>
+{% else %}{% for p in coverage.projects %}
+  {% include "_coverage_table.html" %}
+  <form method="post" action="/o/{{ org.id }}/projects/{{ p.project }}/withdraw" class="card danger">
+    <input type="hidden" name="csrf_token" value="{{ csrf }}">
+    <input type="hidden" name="version" value="{{ p.sql.version }}">
+    <label>Withdraw this project (removes it from browse and matching) <input name="reason" required minlength="3" maxlength="1000" placeholder="Reason, shown to the author"></label>
+    <button type="submit" class="danger">Withdraw project</button>
+  </form>
+{% endfor %}{% endif %}
+{% endif %}
+{% endblock %}

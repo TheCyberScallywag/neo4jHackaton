@@ -1,0 +1,41 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start"><ion-menu-button></ion-menu-button></ion-buttons>
+    <ion-title>Opportunities</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-note class="ion-padding" color="medium">
+    <p>When your skills match an active project, you and the project lead are both asked. Once you've both said yes, you're on the team.</p>
+  </ion-note>
+  @if (message(); as m) {
+    <ion-text color="primary" role="status"><p class="ion-padding-horizontal">{{ m }}</p></ion-text>
+  }
+  @for (p of items(); track p.project_id) {
+    <ion-card [attr.data-project]="p.title">
+      <ion-card-header>
+        <ion-card-title>{{ p.title }}</ion-card-title>
+        <ion-card-subtitle>{{ p.org_name }} · {{ p.state_label }}</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <p>You match:</p>
+        @for (s of p.matched_skills; track s) { <ion-chip color="success">{{ s }}</ion-chip> }
+        @if (p.state === 'eligible') {
+          <p>You: {{ p.volunteer_said ?? 'not answered' }} · Project lead: {{ p.lead_said ?? 'not answered' }}</p>
+          @if (!p.volunteer_said) {
+            <ion-button size="small" (click)="answer(p, 'yes')">Yes, I'd like to help</ion-button>
+            <ion-button size="small" fill="outline" (click)="answer(p, 'no')">No thanks</ion-button>
+          }
+        } @else if (p.state === 'team') {
+          <ion-button size="small" fill="outline" (click)="leave(p)">Leave the team</ion-button>
+        }
+      </ion-card-content>
+    </ion-card>
+  } @empty {
+    <p class="ion-padding">
+      No opportunities yet.
+      @if (orgs.me()?.status !== 'active') { They appear once your account is active. } @else { Offer more skills on your profile. }
+    </p>
+  }
+</ion-content>

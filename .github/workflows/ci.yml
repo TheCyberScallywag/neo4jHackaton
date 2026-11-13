@@ -1,0 +1,59 @@
+# Lint, unit/integration tests (temporary SQLite + real embedded Relate stores), the mobile
+# app's lint + tests, and a Compose smoke test. AuraDB tests skip unless a dev instance's
+# secrets are configured. Make "CI / ci-passed" a required check on main.
+name: CI
+
+on:
+  push:
+    branches-ignore: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
+        with: { enable-cache: true }
+      - run: uv sync --locked
+      - run: uv run task lint
+      - run: uv run task test
+
+  mobile:   # Ionic app lint + unit tests, inside its Docker build stage (no Node setup needed)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: docker build -f docker/mobile.Dockerfile --target test .
+
+  compose:
+    needs: [python, mobile]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
+        with: { enable-cache: true }
+      - run: uv sync --locked
+      - run: docker compose up -d --build --wait
+      - run: uv run pytest -m compose --no-cov
+        env:
+          COMPOSE_WEB_URL: http://localhost:8080
+          COMPOSE_MOBILE_URL: http://localhost:8100
+          COMPOSE_ADMIN_URL: http://localhost:8501
+      - if: failure()
+        run: docker compose logs --no-color
+      - if: always()
+        run: docker compose down -v
+
+  ci-passed:
+    needs: [python, mobile, compose]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "All CI stages passed"

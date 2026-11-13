@@ -1,0 +1,85 @@
+<ion-app>
+  <ion-split-pane contentId="main" when="lg">
+    <ion-menu contentId="main" type="overlay">
+      <ion-header>
+        <ion-toolbar color="primary">
+          <ion-title class="brand">Data Volunteer Network</ion-title>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        @if (session.signedIn()) {
+          @if (orgs.me(); as me) {
+            <ion-list lines="none" data-testid="account">
+              <ion-item>
+                <ion-icon slot="start" name="people-outline" color="primary"></ion-icon>
+                <ion-label>
+                  <h3>{{ me.user.display_name }}</h3>
+                  <p data-testid="status">{{ me.status_label }}</p>
+                </ion-label>
+              </ion-item>
+              @if (orgs.volunteering().length) {
+                <ion-item>
+                  <ion-select
+                    label="Active organisation"
+                    labelPlacement="stacked"
+                    [value]="orgs.activeId()"
+                    (ionChange)="orgs.switchTo($event.detail.value)"
+                  >
+                    @for (o of orgs.volunteering(); track o.id) {
+                      <ion-select-option [value]="o.id">{{ o.name }}</ion-select-option>
+                    }
+                  </ion-select>
+                </ion-item>
+              }
+            </ion-list>
+          }
+          <ion-list lines="none" data-testid="menu">
+            <ion-list-header>Volunteer</ion-list-header>
+            <ion-menu-toggle [autoHide]="false">
+              <ion-item routerLink="/matches" routerLinkActive="selected" [button]="true" [detail]="false">
+                <ion-icon slot="start" name="sparkles-outline"></ion-icon>
+                <ion-label>My matches</ion-label>
+              </ion-item>
+              <ion-item routerLink="/opportunities" routerLinkActive="selected" [button]="true" [detail]="false">
+                <ion-icon slot="start" name="hand-left-outline"></ion-icon>
+                <ion-label>Opportunities</ion-label>
+              </ion-item>
+              <ion-item routerLink="/notifications" routerLinkActive="selected" [button]="true" [detail]="false">
+                <ion-icon slot="start" name="notifications-outline"></ion-icon>
+                <ion-label>Notifications</ion-label>
+                @if (orgs.me()?.unread_notifications; as unread) {
+                  <ion-badge slot="end" color="tertiary" data-testid="unread">{{ unread }}</ion-badge>
+                }
+              </ion-item>
+              <ion-item routerLink="/suggestions" routerLinkActive="selected" [button]="true" [detail]="false">
+                <ion-icon slot="start" name="document-text-outline"></ion-icon>
+                <ion-label>My suggestions</ion-label>
+              </ion-item>
+              <ion-item routerLink="/profile" routerLinkActive="selected" [button]="true" [detail]="false">
+                <ion-icon slot="start" name="person-circle-outline"></ion-icon>
+                <ion-label>Profile</ion-label>
+              </ion-item>
+              <ion-item [button]="true" [detail]="false" (click)="signOut()">
+                <ion-icon slot="start" name="log-out-outline"></ion-icon>
+                <ion-label>Sign out</ion-label>
+              </ion-item>
+            </ion-menu-toggle>
+          </ion-list>
+        } @else {
+          <ion-list lines="none">
+            <ion-menu-toggle [autoHide]="false">
+              <ion-item routerLink="/sign-in" [button]="true" [detail]="false">
+                <ion-icon slot="start" name="log-in-outline"></ion-icon>
+                <ion-label>Sign in</ion-label>
+              </ion-item>
+            </ion-menu-toggle>
+          </ion-list>
+        }
+        <ion-note class="ion-padding">
+          Companion app. Suggestions and reviews live in the web app. Fictional demo data.
+        </ion-note>
+      </ion-content>
+    </ion-menu>
+    <ion-router-outlet id="main"></ion-router-outlet>
+  </ion-split-pane>
+</ion-app>

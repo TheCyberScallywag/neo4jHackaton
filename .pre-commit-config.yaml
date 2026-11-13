@@ -1,0 +1,48 @@
+# Install once: uv run pre-commit install    Run all: uv run task hooks
+# Bump versions: uv run pre-commit autoupdate
+default_install_hook_types: [pre-commit, commit-msg, pre-push]  # commit-msg: the prefix; pre-push: the branch name
+default_stages: [pre-commit]
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: [--unsafe]  # compose files use !reset tags
+      - id: check-toml
+      - id: check-added-large-files
+      - id: detect-private-key
+      - id: no-commit-to-branch  # main: work on a feature/, bug/, … branch and open a PR
+
+  - repo: local
+    hooks:
+      - id: branch-name
+        name: branch name is feature/, bug/, task/, docs/ or refactor/
+        entry: bash -c 'scripts/check_branch_name.sh "$PRE_COMMIT_REMOTE_BRANCH"'
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+      - id: commit-msg
+        name: "commit message starts with ADDED:, FIXED:, TASK:, DOCS: or REFACTOR:"
+        entry: scripts/check_commit_msg.sh
+        language: script
+        stages: [commit-msg]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.1
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.13.4
+    hooks:
+      - id: uv-lock  # keeps uv.lock in step with pyproject.toml
+
+  - repo: https://github.com/Mateusz-Grzelinski/actionlint-py  # pip-packaged, no Go needed
+    rev: v1.7.12.25
+    hooks:
+      - id: actionlint

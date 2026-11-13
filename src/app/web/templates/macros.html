@@ -1,0 +1,54 @@
+{% macro skills(names, cls="") %}{% for n in names %}<span class="chip {{ cls }}">{{ n }}</span>{% endfor %}{% endmacro %}
+
+{% macro match_card(m, show_org=True) %}
+<article class="card match">
+  <h3><a href="/o/{{ m.org }}/projects/{{ m.project }}">{{ m.title }}</a></h3>
+  <p class="meta">{% if show_org %}{{ m.org_name }} · {% endif %}{{ m.cause_name }}
+    {% if m.preferred %}<span class="chip pref">Preferred cause</span>{% endif %}
+    {% if m.partial %}<span class="chip partial">Partial match: a contribution opportunity</span>{% endif %}</p>
+  <p>You match: {{ skills(m.matched_names, "ok") }}</p>
+  {% if m.optional_names %}<p>Nice to have, you offer: {{ skills(m.optional_names, "opt") }}</p>{% endif %}
+  {% if m.remaining_names %}<p>Still needed from others: {{ skills(m.remaining_names, "gap") }}</p>{% endif %}
+  {% if m.optional_excluded_names %}<p class="muted">Left out because you excluded them: {{ m.optional_excluded_names|join(", ") }}</p>{% endif %}
+</article>
+{% endmacro %}
+
+{% macro exclusions(rows) %}
+{% if rows %}
+<section class="card muted-card">
+  <h3>Hidden by your exclusions</h3>
+  <p class="muted">Only you can see this. Exclusions always win, even when another skill matches.</p>
+  <ul>{% for e in rows %}<li><strong>{{ e.title }}</strong> ({{ e.org_name }}): {{ e.reasons|join("; ") }}.</li>{% endfor %}</ul>
+</section>
+{% endif %}
+{% endmacro %}
+
+{% macro draft_fields(draft, orgs=None, target="") %}
+{% if orgs is not none %}
+<label>Organisation
+  <select name="org_id" required>
+    {% for o in orgs %}<option value="{{ o.id }}" {% if o.id == target %}selected{% endif %}>{{ o.name }}</option>{% endfor %}
+  </select>
+</label>
+{% endif %}
+<label>Title <input name="title" required minlength="3" maxlength="120" value="{{ draft.title if draft else '' }}"></label>
+<label>Summary <textarea name="summary" required minlength="10" maxlength="2000" rows="4">{{ draft.summary if draft else '' }}</textarea></label>
+<label>Cause
+  <select name="cause_id" required>
+    {% for c in catalogue().causes %}<option value="{{ c.id }}" {% if draft and draft.cause_id == c.id %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+  </select>
+</label>
+<fieldset class="skillgrid">
+  <legend>Skills from the shared catalogue</legend>
+  <table>
+    <thead><tr><th>Skill</th><th>Required</th><th>Optional</th></tr></thead>
+    <tbody>
+    {% for s in catalogue().skills %}
+      <tr><td>{{ s.name }} <span class="muted">{{ s.category }}</span></td>
+        <td><input type="checkbox" name="required" value="{{ s.id }}" aria-label="{{ s.name }} required" {% if draft and s.id in draft.required %}checked{% endif %}></td>
+        <td><input type="checkbox" name="optional" value="{{ s.id }}" aria-label="{{ s.name }} optional" {% if draft and s.id in draft.optional %}checked{% endif %}></td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</fieldset>
+{% endmacro %}

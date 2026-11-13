@@ -1,0 +1,13 @@
+# Changes here will be overwritten by Copier; do not edit by hand.
+_commit: 9355c1a
+_src_path: gh:cyberscallywags/sgaffald
+app_id: org.example.hackentry
+description: 'A full-stack project: FastAPI, FastUI, Streamlit, Ionic and Neo4j for
+    the Neo4j Hackaton'
+github_owner: cyberscallywags
+organisation: Cyber Scallywags
+organisation_url: ''
+primary_colour: '#264653'
+project_name: hackEntry
+project_slug: hackentry
+repository: hackentry

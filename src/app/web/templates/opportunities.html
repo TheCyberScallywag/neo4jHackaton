@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Opportunities{% endblock %}
+{% block content %}
+<h1>Opportunities</h1>
+<p class="muted">When your skills match an active project, you and the project lead are both asked. Once you've both said yes, you're on the team.</p>
+{% for p in items %}
+<article class="card" data-project="{{ p.title }}">
+  <h3>{{ p.title }}</h3>
+  <p class="meta">{{ p.org_name }} · <span class="state {{ p.state }}">{{ p.state_label }}</span></p>
+  <p>You match: {% for s in p.matched_skills %}<span class="chip ok">{{ s }}</span>{% endfor %}</p>
+  {% if p.state == "eligible" %}
+    <p class="muted">You: {{ p.volunteer_said or "not answered" }} · Project lead: {{ p.lead_said or "not answered" }}</p>
+    {% if not p.volunteer_said %}
+    <div class="actions">
+    {% for answer, label in (("yes", "Yes, I'd like to help"), ("no", "No thanks")) %}
+      <form method="post" action="/opportunities/{{ p.project_id }}/answer">
+        <input type="hidden" name="csrf_token" value="{{ csrf }}"><input type="hidden" name="version" value="{{ p.version }}">
+        <input type="hidden" name="answer" value="{{ answer }}"><button type="submit" class="{{ 'secondary' if answer == 'no' }}">{{ label }}</button>
+      </form>
+    {% endfor %}
+    </div>
+    {% endif %}
+  {% elif p.state == "team" %}
+    <form method="post" action="/opportunities/{{ p.project_id }}/leave"><input type="hidden" name="csrf_token" value="{{ csrf }}"><button type="submit" class="secondary">Leave the team</button></form>
+  {% endif %}
+</article>
+{% else %}<p class="muted">No opportunities yet. {% if actor and actor.status != "active" %}They appear once your account is active.{% else %}Offer more skills on your <a href="/profile">profile</a>.{% endif %}</p>{% endfor %}
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}My suggestions{% endblock %}
+{% block content %}
+<h1>My suggestions</h1>
+<p><a class="button" href="/submissions/new">Suggest a project</a></p>
+<table>
+  <thead><tr><th>Title</th><th>Organisation</th><th>State</th><th>Revision</th><th>Updated</th></tr></thead>
+  <tbody>
+  {% for s in submissions %}<tr><td><a href="/submissions/{{ s.id }}">{{ s.title }}</a></td><td>{{ s.org_name }}</td><td><span class="state {{ s.state }}">{{ s.state|state_label }}</span></td><td>{{ s.current_revision }}</td><td>{{ s.updated_at[:16]|replace("T", " ") }}</td></tr>
+  {% else %}<tr><td colspan="5" class="muted">No suggestions yet.</td></tr>{% endfor %}
+  </tbody>
+</table>
+{% endblock %}

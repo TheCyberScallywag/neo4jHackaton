@@ -1,0 +1,25 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Credentials and runtime stores: never committed
+.env
+.env.*
+!.env.example
+var/
+*.sqlite3
+*.sqlite3-*
+data/*.rl
+!data/demo.rl
+
+# Mobile build output
+mobile/node_modules/
+mobile/www/
+mobile/.angular/
+
+.DS_Store

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ org.name }} volunteers{% endblock %}
+{% block content %}
+<h1>{{ org.name }}: volunteers</h1>
+<p class="muted">Org admins only. People who have opted in to {{ org.name }}. Contact details are never shown.</p>
+<table>
+  <thead><tr><th>Name</th><th>Status</th><th>Offers</th><th>Teams</th><th></th></tr></thead>
+  <tbody>
+  {% for p in people %}
+  <tr data-volunteer="{{ p.display_name }}"><td>{{ p.display_name }}</td><td>{{ status_labels[p.status] }}</td>
+    <td>{{ p.offers|map("skill_name")|join(", ") or "—" }}</td><td>{{ p.teams }}</td>
+    <td><form method="post" action="/o/{{ org.id }}/volunteers/{{ p.id }}/remove" class="inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf }}">
+      <input name="reason" required minlength="3" placeholder="Reason" aria-label="Reason for removing {{ p.display_name }}">
+      <button type="submit" class="secondary">Remove</button></form></td></tr>
+  {% else %}<tr><td colspan="5" class="muted">No volunteers yet.</td></tr>{% endfor %}
+  </tbody>
+</table>
+{% endblock %}

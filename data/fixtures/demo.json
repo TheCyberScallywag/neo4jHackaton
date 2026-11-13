@@ -1,0 +1,259 @@
+{
+  "_comment": "Disposable, fictional demo data. The organisations are illustrative: no endorsement or live partnership is implied, and names are configurable with ORG_NAMES. Every person and project is invented. Demo accounts are seeded only by `python -m app.cli reset --demo`, which refuses to run with APP_ENV=production. Statuses: every person is an active, vetted volunteer unless `status` says otherwise; Nia is still in screening.",
+  "organisations": [
+    {
+      "key": "datakind-uk",
+      "name": "DataKind UK",
+      "description": "Illustrative data-for-good organisation used for this demo only."
+    },
+    {
+      "key": "cyber-scallywags",
+      "name": "Cyber Scallywags",
+      "description": "Illustrative community tech collective used for this demo only."
+    }
+  ],
+  "people": [
+    {
+      "key": "asha",
+      "display_name": "Asha",
+      "email": "asha@demo.invalid",
+      "volunteers_with": [
+        "datakind-uk",
+        "cyber-scallywags"
+      ],
+      "skills": {
+        "cooking": "offers",
+        "active-listening": "offers",
+        "data-analysis": "offers"
+      },
+      "causes": {
+        "homelessness": "prefer",
+        "food-security": "prefer"
+      }
+    },
+    {
+      "key": "bryn",
+      "display_name": "Bryn",
+      "email": "bryn@demo.invalid",
+      "volunteers_with": [
+        "cyber-scallywags"
+      ],
+      "skills": {
+        "van-driving": "offers",
+        "carpentry": "offers"
+      },
+      "causes": {
+        "environment": "prefer"
+      }
+    },
+    {
+      "key": "cerys",
+      "display_name": "Cerys",
+      "email": "cerys@demo.invalid",
+      "volunteers_with": [
+        "datakind-uk"
+      ],
+      "skills": {
+        "welsh-translation": "offers",
+        "literacy-tutoring": "offers",
+        "bookkeeping": "offers"
+      },
+      "causes": {}
+    },
+    {
+      "key": "dev",
+      "display_name": "Dev",
+      "email": "dev@demo.invalid",
+      "volunteers_with": [
+        "datakind-uk"
+      ],
+      "skills": {
+        "bookkeeping": "offers",
+        "data-analysis": "offers"
+      },
+      "causes": {
+        "food-security": "prefer",
+        "environment": "exclude"
+      }
+    },
+    {
+      "key": "gwen",
+      "display_name": "Gwen",
+      "email": "gwen@demo.invalid",
+      "volunteers_with": [
+        "cyber-scallywags"
+      ],
+      "skills": {
+        "cooking": "offers",
+        "van-driving": "offers",
+        "active-listening": "exclude"
+      },
+      "causes": {
+        "homelessness": "prefer"
+      }
+    },
+    {
+      "key": "farah",
+      "display_name": "Farah",
+      "email": "farah@demo.invalid",
+      "volunteers_with": [
+        "datakind-uk"
+      ],
+      "skills": {
+        "first-aid": "offers",
+        "fundraising": "offers",
+        "active-listening": "has"
+      },
+      "causes": {
+        "education": "prefer"
+      }
+    },
+    {
+      "key": "kofi",
+      "display_name": "Kofi",
+      "email": "kofi@demo.invalid",
+      "volunteers_with": [
+        "datakind-uk"
+      ],
+      "skills": {
+        "data-analysis": "offers",
+        "fundraising": "offers",
+        "gardening": "has"
+      },
+      "causes": {},
+      "org_roles": {
+        "cyber-scallywags": [
+          "org_admin"
+        ]
+      }
+    },
+    {
+      "key": "rhiannon",
+      "display_name": "Rhiannon",
+      "email": "rhiannon@demo.invalid",
+      "volunteers_with": [],
+      "skills": {},
+      "causes": {},
+      "org_roles": {
+        "datakind-uk": [
+          "org_admin"
+        ]
+      }
+    },
+    {
+      "key": "sam",
+      "display_name": "Sam",
+      "email": "sam@demo.invalid",
+      "volunteers_with": [],
+      "system_roles": [
+        "admin"
+      ],
+      "skills": {},
+      "causes": {}
+    },
+    {
+      "key": "mo",
+      "display_name": "Mo",
+      "email": "mo@demo.invalid",
+      "volunteers_with": [],
+      "system_roles": [
+        "moderator"
+      ],
+      "skills": {},
+      "causes": {}
+    },
+    {
+      "key": "nia",
+      "display_name": "Nia",
+      "email": "nia@demo.invalid",
+      "status": "screening",
+      "volunteers_with": [
+        "cyber-scallywags"
+      ],
+      "skills": {
+        "first-aid": "offers",
+        "cooking": "has"
+      },
+      "causes": {
+        "homelessness": "prefer"
+      }
+    }
+  ],
+  "submissions": [
+    {
+      "key": "food-bank-dashboard",
+      "org": "datakind-uk",
+      "author": "cerys",
+      "title": "Food Bank Demand Dashboard",
+      "summary": "Turn monthly parcel counts into a simple dashboard so a fictional food bank can plan stock.",
+      "cause": "food-security",
+      "required": [
+        "data-analysis",
+        "bookkeeping"
+      ],
+      "optional": [
+        "welsh-translation"
+      ],
+      "outcome": "approved",
+      "reviewer": "rhiannon",
+      "reason": "Clear scope and a realistic first milestone."
+    },
+    {
+      "key": "winter-outreach",
+      "org": "cyber-scallywags",
+      "author": "asha",
+      "title": "Winter Outreach Kitchen",
+      "summary": "Cook, deliver and listen: hot meals for a fictional winter night shelter.",
+      "cause": "homelessness",
+      "required": [
+        "cooking",
+        "van-driving",
+        "active-listening",
+        "first-aid"
+      ],
+      "optional": [
+        "fundraising"
+      ],
+      "outcome": "approved",
+      "reviewer": "kofi",
+      "reason": "Approved for the winter rota."
+    },
+    {
+      "key": "outreach-data-audit",
+      "org": "datakind-uk",
+      "author": "asha",
+      "title": "Outreach Data Audit",
+      "summary": "Review how a fictional outreach team records contacts and suggest a lighter, privacy-respecting form.",
+      "cause": "homelessness",
+      "required": [
+        "data-analysis",
+        "active-listening"
+      ],
+      "optional": [
+        "data-visualisation"
+      ],
+      "outcome": "submitted"
+    },
+    {
+      "key": "phishing-workshop",
+      "org": "cyber-scallywags",
+      "author": "bryn",
+      "title": "Phishing Awareness Pop-up",
+      "summary": "A one-off talk at a fictional library.",
+      "cause": "digital-inclusion",
+      "required": [
+        "security-awareness"
+      ],
+      "optional": [],
+      "outcome": "rejected",
+      "reviewer": "kofi",
+      "reason": "Already covered by an existing programme this season."
+    }
+  ],
+  "teams": [
+    {
+      "project": "winter-outreach",
+      "volunteer": "bryn"
+    }
+  ]
+}

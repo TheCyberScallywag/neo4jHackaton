@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+{# Same structure and wording as the mobile Profile page (app.profile_view). #}
+<h1>Profile</h1>
+<section class="card onboarding" data-section="onboarding">
+  <p>Onboarding status: <strong class="status {{ actor.status }}">{{ status_labels[actor.status] }}</strong></p>
+  {% if actor.status in ("draft", "info_requested", "declined") %}
+  <form method="post" action="/me/vetting">
+    <input type="hidden" name="csrf_token" value="{{ csrf }}">
+    <p class="muted">Offer at least one skill and save, then submit your profile. A moderator checks it before you can be matched to projects.</p>
+    <button type="submit">Submit for vetting</button>
+  </form>
+  {% endif %}
+</section>
+<form method="post" action="/profile" class="profile">
+  <input type="hidden" name="csrf_token" value="{{ csrf }}">
+  <input type="hidden" name="version" value="{{ view.version }}">
+  <label class="narrow">Display name (shown to organisations you join)
+    <input name="display_name" required maxlength="60" value="{{ view.display_name }}"></label>
+
+  {% set offered = view.skills|selectattr("state", "equalto", "offers")|list|length %}
+  {% set excluded = view.skills|selectattr("state", "equalto", "exclude")|list|length %}
+  <details class="accordion" open data-section="skills">
+    <summary><span>Skills</span><span class="note">{{ offered }} offered · {{ excluded }} excluded</span></summary>
+    <div class="accordion-body">
+      <p class="hint"><strong>Offer</strong> to be matched on a skill. <strong>Exclude</strong> means you're never matched to a project that requires it.</p>
+      {% for group in view.skill_groups %}
+      {% set g_offered = group.skills|selectattr("state", "equalto", "offers")|list|length %}
+      {% set g_excluded = group.skills|selectattr("state", "equalto", "exclude")|list|length %}
+      <details class="accordion sub" data-category="{{ group.category }}">
+        <summary><span>{{ group.category }}</span><span class="note">{{ g_offered }} offered · {{ g_excluded }} excluded</span></summary>
+        <div class="accordion-body">
+          {% for skill in group.skills %}
+          <label class="row">{{ skill.name }}
+            <select name="skill:{{ skill.id }}">
+              {% for value, label in SKILL_STATES.items() %}<option value="{{ value }}" {% if skill.state == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+            </select></label>
+          {% endfor %}
+        </div>
+      </details>
+      {% endfor %}
+    </div>
+  </details>
+
+  <details class="accordion" data-section="causes">
+    <summary><span>Causes</span></summary>
+    <div class="accordion-body">
+      <p class="hint">Preferred causes rank first. With no preference you're matched on skills for every cause you haven't excluded.</p>
+      {% for cause in view.causes %}
+      <label class="row">{{ cause.name }}
+        <select name="cause:{{ cause.id }}">
+          {% for value, label in CAUSE_STANCES.items() %}<option value="{{ value }}" {% if cause.stance == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select></label>
+      {% endfor %}
+    </div>
+  </details>
+
+  <details class="accordion" data-section="active">
+    <summary><span>Active projects</span><span class="badge">{{ view.projects.active|length }}</span></summary>
+    <div class="accordion-body">
+      {% if view.projects.matches_withheld %}<p class="pending">{{ view.projects.matches_withheld }} Matched projects will reappear shortly.</p>{% endif %}
+      <ul class="projects">
+      {% for p in view.projects.active %}
+        <li><a href="{% if p.relation == 'suggested' %}/submissions/{{ p.id }}{% else %}/o/{{ p.org_id }}/projects/{{ p.id }}{% endif %}"><strong>{{ p.title }}</strong></a>
+          <span class="state {{ p.state }}">{{ PROJECT_STATES[p.state] }}</span><br>
+          <span class="muted">{{ p.organisation }} · {{ "You suggested this" if p.relation == "suggested" else "You match this" }}</span>
+          {% if p.detail %}<br><span class="muted">{{ p.detail }}</span>{% endif %}</li>
+      {% else %}<li class="muted">No active projects yet. Offer some skills above.</li>{% endfor %}
+      </ul>
+    </div>
+  </details>
+
+  <details class="accordion" data-section="past">
+    <summary><span>Past projects</span><span class="badge">{{ view.projects.past|length }}</span></summary>
+    <div class="accordion-body">
+      <ul class="projects">
+      {% for p in view.projects.past %}
+        <li><a href="/submissions/{{ p.id }}"><strong>{{ p.title }}</strong></a>
+          <span class="state {{ p.state }}">{{ PROJECT_STATES[p.state] }}</span><br>
+          <span class="muted">{{ p.organisation }} · You suggested this</span></li>
+      {% else %}<li class="muted">No past projects.</li>{% endfor %}
+      </ul>
+    </div>
+  </details>
+
+  <div class="savebar"><button type="submit">Save profile</button></div>
+</form>
+{% endblock %}

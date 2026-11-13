@@ -1,0 +1,53 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start"><ion-menu-button></ion-menu-button></ion-buttons>
+    <ion-title>My matches</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-item lines="none">
+    <ion-toggle [checked]="preferredOnly()" (ionChange)="preferredOnly.set($event.detail.checked)">Preferred causes only</ion-toggle>
+  </ion-item>
+  @if (error(); as message) {
+    <ion-text color="danger"><p class="ion-padding">{{ message }}</p></ion-text>
+  }
+  @if (result(); as r) {
+    @if (r.withheld) {
+      <ion-text color="warning" data-testid="withheld"><p class="ion-padding">{{ r.withheld }} Pull to refresh shortly.</p></ion-text>
+    } @else {
+      @for (m of r.matches; track m.project) {
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>{{ m.title }}</ion-card-title>
+            <ion-card-subtitle>{{ m.organisation }} · {{ m.cause }}
+              @if (m.preferred_cause) { <ion-badge color="tertiary">Preferred cause</ion-badge> }
+            </ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content>
+            <p>You match:</p>
+            @for (s of m.matched_skills; track s) { <ion-chip color="success">{{ s }}</ion-chip> }
+            @if (m.optional_skills.length) {
+              <p>Nice to have, you offer:</p>
+              @for (s of m.optional_skills; track s) { <ion-chip color="secondary">{{ s }}</ion-chip> }
+            }
+            @if (m.remaining_skills.length) {
+              <p>Still needed from others:</p>
+              @for (s of m.remaining_skills; track s) { <ion-chip color="danger" outline="true">{{ s }}</ion-chip> }
+            }
+          </ion-card-content>
+        </ion-card>
+      } @empty {
+        <p class="ion-padding">No matches yet. Add skills you offer in the web app.</p>
+      }
+      @if (r.excluded.length) {
+        <ion-card data-testid="excluded">
+          <ion-card-header><ion-card-subtitle>Hidden by your exclusions (only you see this)</ion-card-subtitle></ion-card-header>
+          <ion-card-content>
+            @for (e of r.excluded; track e.project) { <p><strong>{{ e.title }}</strong>: {{ e.reasons.join('; ') }}.</p> }
+          </ion-card-content>
+        </ion-card>
+      }
+    }
+  }
+</ion-content>

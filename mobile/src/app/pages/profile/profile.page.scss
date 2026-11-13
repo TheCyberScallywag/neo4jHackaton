@@ -1,0 +1,15 @@
+ion-accordion-group.sub {
+  margin: 4px 8px 8px;
+
+  ion-accordion {
+    border: 1px solid var(--ion-color-light-shade);
+    border-radius: 8px;
+    margin-bottom: 6px;
+  }
+}
+
+.hint {
+  display: block;
+  padding: 8px 16px 0;
+  font-size: 0.85em;
+}

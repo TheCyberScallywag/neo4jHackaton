@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% from "macros.html" import match_card, exclusions %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<h1>Hello, {{ session.display_name }}</h1>
+{% if not orgs %}
+<p class="card">You have not joined an organisation yet. <a href="/orgs">Browse the directory</a> and opt in where you want to help.</p>
+{% else %}
+<section class="grid">
+  {% for o in orgs %}
+  <article class="card {% if active and o.id == active.id %}current{% endif %}">
+    <h3>{{ o.name }}</h3>
+    <p class="meta">{% if o.opted_in %}<span class="chip ok">Volunteering</span>{% endif %}{% if o.org_admin %}<span class="chip pref">Org admin</span>{% elif o.reviewer %}<span class="chip pref">Reviewer</span>{% endif %}</p>
+    <p><a href="/o/{{ o.id }}/projects">Projects</a>{% if o.opted_in %} · <a href="/matches?scope={{ o.id }}">My matches</a>{% endif %}
+       {% if o.reviewer %} · <a href="/o/{{ o.id }}/review">Review queue ({{ queues.get(o.id, 0) }} waiting)</a> · <a href="/o/{{ o.id }}/coverage">Coverage</a>{% endif %}</p>
+  </article>
+  {% endfor %}
+</section>
+{% endif %}
+
+<h2>Opportunities across your organisations</h2>
+{% if matches.withheld %}<p class="pending">{{ matches.withheld.reason }}</p>
+{% elif matches.matches %}
+  {% for m in matches.matches[:6] %}{{ match_card(m) }}{% endfor %}
+  <p><a href="/matches?scope=all">All matches and filters</a></p>
+{% else %}<p class="muted">No matches yet. Add skills you offer on your <a href="/profile">profile</a>.</p>{% endif %}
+{{ exclusions(matches.excluded) }}
+
+<h2>Your suggestions</h2>
+{% if submissions %}
+<ul class="list">{% for s in submissions %}<li><a href="/submissions/{{ s.id }}">{{ s.title }}</a> · {{ s.org_name }} · <span class="state {{ s.state }}">{{ s.state|state_label }}</span></li>{% endfor %}</ul>
+{% else %}<p class="muted">None yet. <a href="/submissions/new">Suggest a project</a>.</p>{% endif %}
+{% endblock %}

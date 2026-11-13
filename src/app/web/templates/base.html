@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ meta.name }}{% endblock %} · Data Volunteer Network</title>
+  <link rel="icon" href="/brand/favicon.png">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="/"><img src="/brand/mark.svg" alt="" width="28" height="28"> Data Volunteer Network</a>
+  {% if session %}
+  <form class="switcher" method="post" action="/orgs/switch">
+    <input type="hidden" name="csrf_token" value="{{ csrf }}">
+    <input type="hidden" name="next" value="">
+    <label for="org-switch" class="sr">Active organisation</label>
+    <select id="org-switch" name="org_id">
+      {% for o in orgs %}<option value="{{ o.id }}" {% if active and o.id == active.id %}selected{% endif %}>{{ o.name }}</option>{% endfor %}
+    </select>
+    <button type="submit" {% if not orgs %}disabled{% endif %}>Switch</button>
+  </form>
+  <nav>
+    <a href="/home">Home</a>
+    {% if active %}<a href="/o/{{ active.id }}/projects">Projects</a>{% endif %}
+    <a href="/matches">My matches</a>
+    <a href="/opportunities">Opportunities</a>
+    <a href="/notifications">Notifications{% if unread %} <span class="count">{{ unread }}</span>{% endif %}</a>
+    <a href="/submissions/new{% if active %}?org={{ active.id }}{% endif %}">Suggest</a>
+    <a href="/submissions">My suggestions</a>
+    {% if active and active.reviewer %}<a href="/o/{{ active.id }}/review">Review</a><a href="/o/{{ active.id }}/coverage">Coverage</a>{% endif %}
+    {% if active and active.org_admin %}<a href="/o/{{ active.id }}/volunteers">Volunteers</a>{% endif %}
+    {% if actor and actor.system_roles %}<a href="/api/docs">API</a>{% endif %}
+    <a href="/profile">Profile</a>
+    <a href="/orgs">Organisations</a>
+    <form method="post" action="/signout" class="inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf }}">
+      <button type="submit" class="link">Sign out ({{ session.display_name }})</button>
+    </form>
+  </nav>
+  {% endif %}
+</header>
+<main>
+  {% if message %}<p class="flash" role="status">{{ message }}</p>{% endif %}
+  {% if actor and actor.status != "active" %}<p class="pending" role="status" data-status="{{ actor.status }}">Account status: <strong>{{ status_labels[actor.status] }}</strong>.
+    {% if actor.status in ("draft", "info_requested", "declined") %}Complete your <a href="/profile">profile</a> and submit it for vetting. You'll be matched to projects once a moderator approves you.{% elif actor.status == "screening" %}A moderator is reviewing your profile. You'll be notified here.{% endif %}</p>{% endif %}
+  {% if pending_mine %}<p class="pending" role="status">Your latest change is still being applied to the matching graph ({{ pending_mine }} pending). Matches that depend on it are withheld until it catches up.</p>{% endif %}
+  {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+  {% block content %}{% endblock %}
+</main>
+<footer>
+  Fictional demo data. Organisation names are illustrative and imply no endorsement or partnership.
+  Matching runs on a <a href="https://relatedb.ai/docs/">Relate</a> graph.
+</footer>
+</body>
+</html>

@@ -1,0 +1,25 @@
+name: Bug
+description: Something is broken
+labels: [bug]
+body:
+  - type: dropdown
+    id: service
+    attributes:
+      label: Service
+      options: [api, ui, admin, neo4j, ci/cd, other]
+    validations: { required: true }
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations: { required: true }
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: "1. uv run task up\n2. ..."
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      render: shell

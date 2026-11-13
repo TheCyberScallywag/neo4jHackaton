@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% from "macros.html" import draft_fields %}
+{% block title %}Suggest a project{% endblock %}
+{% block content %}
+<h1>Suggest a project</h1>
+{% if not orgs %}<p>Join an organisation first: <a href="/orgs">organisations</a>.</p>
+{% else %}
+<p>Your suggestion goes to that organisation's reviewers. It stays private to you and them until it is approved.</p>
+<form method="post" action="/submissions/new">
+  <input type="hidden" name="csrf_token" value="{{ csrf }}">
+  {{ draft_fields(draft, orgs, target or (active.id if active else "")) }}
+  <button type="submit">Submit for review</button>
+</form>
+{% endif %}
+{% endblock %}

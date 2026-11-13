@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Organisations{% endblock %}
+{% block content %}
+<h1>Organisations</h1>
+<p>Joining (opting in) lets an organisation consider you as a candidate. Switching only changes which organisation you are looking at.</p>
+<section class="grid">
+{% for o in directory %}
+  <article class="card">
+    <h3>{{ o.name }}</h3>
+    <p>{{ o.description }}</p>
+    <p class="meta">{% if o.opted_in %}<span class="chip ok">You volunteer here</span>{% endif %}{% if o.org_admin %}<span class="chip pref">Org admin</span>{% elif o.reviewer %}<span class="chip pref">Reviewer</span>{% endif %}</p>
+    <div class="actions">
+    {% if o.opted_in %}
+      <form method="post" action="/orgs/{{ o.id }}/leave"><input type="hidden" name="csrf_token" value="{{ csrf }}"><button class="secondary" type="submit">Opt out</button></form>
+    {% else %}
+      <form method="post" action="/orgs/{{ o.id }}/join"><input type="hidden" name="csrf_token" value="{{ csrf }}"><button type="submit">Opt in as volunteer</button></form>
+    {% endif %}
+    {% if o.opted_in or o.reviewer %}
+      <form method="post" action="/orgs/switch"><input type="hidden" name="csrf_token" value="{{ csrf }}"><input type="hidden" name="org_id" value="{{ o.id }}"><button class="secondary" type="submit" {% if active and active.id == o.id %}disabled{% endif %}>{% if active and active.id == o.id %}Active{% else %}Switch to{% endif %}</button></form>
+    {% endif %}
+    </div>
+  </article>
+{% endfor %}
+</section>
+{% endblock %}

@@ -1,0 +1,7 @@
+// For information on how to create your own theme, please refer to:
+// https://ionicframework.com/docs/theming/
+//
+// Brand colours arrive at runtime from GET /site (see app/core/theme.ts), which overrides
+// these. _brand.scss is generated from content/site.json (`uv run task sync`), so the first
+// paint is already on-brand.
+@use 'brand';

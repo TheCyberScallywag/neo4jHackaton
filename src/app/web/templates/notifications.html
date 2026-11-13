@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<h1>Notifications</h1>
+{% if unread %}
+<form method="post" action="/notifications/read-all"><input type="hidden" name="csrf_token" value="{{ csrf }}"><button type="submit" class="secondary">Mark all as read</button></form>
+{% endif %}
+<ul class="projects notifications">
+{% for n in items %}
+  <li class="{{ 'unread' if not n.read_at }}" data-kind="{{ n.kind }}">
+    {% if n.link %}<a href="{{ n.link }}">{{ n.message }}</a>{% else %}{{ n.message }}{% endif %}
+    <br><span class="muted">{{ n.kind|capitalize }} · {{ n.created_at[:16]|replace("T", " ") }} UTC</span></li>
+{% else %}<li class="muted">Nothing yet.</li>{% endfor %}
+</ul>
+{% endblock %}

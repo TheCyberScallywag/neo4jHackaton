@@ -1,0 +1,94 @@
+[project]
+name = "hackentry"
+version = "0.2.0"
+description = "Data Volunteer Network: one volunteer account across organisations, matched by a Relate graph"
+readme = "README.md"
+requires-python = ">=3.14,<3.15"
+license = "MIT"
+dependencies = [
+    "pydantic>=2.12",
+    "pydantic-settings>=2.11",
+    "fastapi>=0.120",
+    "uvicorn[standard]>=0.38",
+    "jinja2>=3.1.6",
+    "python-multipart>=0.0.20",
+    "argon2-cffi>=25.1",
+    # Embedded Relate engine. Pinned to the same version as the tested `relate` CLI (1.0.1), so
+    # the bundled data/demo.rl can be opened by either.
+    "relate-db==1.0.1",
+]
+
+[project.optional-dependencies]
+aura = ["neo4j>=6.0,<7"]  # optional AuraDB push + match parity (python -m app.cli aura-*)
+admin = ["streamlit>=1.50", "httpx>=0.28"]  # the console is a client of the JSON API
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28",  # FastAPI TestClient
+    "pytest>=8.4",
+    "pytest-cov>=7.0",
+    "ruff>=0.14",
+    "pre-commit>=4.3",
+    "taskipy>=1.14",
+]
+admin = ["hackentry[admin]"]
+aura = ["hackentry[aura]"]
+
+[tool.uv]
+default-groups = ["dev"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/app"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"brand/brand.toml" = "app/brand/brand.toml"
+"brand/images" = "app/brand/images"
+"data/fixtures" = "app/fixtures"
+"data/demo.rl" = "app/demo.rl"
+
+# ---------------------------------------------------------------- taskipy
+[tool.taskipy.tasks]
+web = { cmd = "python -m app.serve web", help = "Run the web app on http://localhost:8080 (seeds the demo on first start)" }
+admin = { cmd = "python -m app.serve admin", help = "Run the Streamlit admin on http://localhost:8501 (needs uv sync --group admin)" }
+reset = { cmd = "python -m app.cli reset --demo", help = "Wipe var/ and reseed the disposable demo (SQLite + writable copy of data/demo.rl)" }
+bundle = { cmd = "python -m app.cli bundle", help = "Rebuild the committed data/demo.rl from data/fixtures" }
+inspect = { cmd = "python -m app.cli inspect --store data/demo.rl", help = "Run the sample graph inspection query on the bundled store" }
+lint = { cmd = "ruff check . && ruff format --check .", help = "Ruff lint + format check" }
+format = { cmd = "ruff format . && ruff check --fix .", help = "Auto-format and fix" }
+test = { cmd = "pytest", help = "All tests: temporary SQLite + real Relate stores" }
+up = { cmd = "docker compose up -d --build --wait", help = "Build + start web, admin and mobile" }
+down = { cmd = "docker compose down -v", help = "Stop the stack and drop its volume" }
+
+# ---------------------------------------------------------------- pytest
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "aura: needs AURA_URI/AURA_PASSWORD for a designated dev AuraDB instance",
+    "compose: needs a Docker daemon and the stack started with task up",
+]
+addopts = "-ra --strict-markers --cov=app --cov-report=term-missing"
+
+[tool.coverage.run]
+omit = ["src/app/admin/*"]
+
+# ---------------------------------------------------------------- ruff
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+extend-exclude = ["mobile"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "S", "TD"]
+ignore = [
+    "S101",  # asserts are fine in tests
+    "TD003",
+    "S608",  # SQL built only from fixed fragments; values are always bound parameters
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S105", "S106", "S603", "S607"]
+"src/app/cli.py" = ["S603", "S607"]

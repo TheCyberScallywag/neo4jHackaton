@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% from "macros.html" import match_card, exclusions %}
+{% block title %}My matches{% endblock %}
+{% block content %}
+<h1>My matches</h1>
+<form method="get" action="/matches" class="filters">
+  <label>Organisation
+    <select name="scope">
+      <option value="all" {% if scope == "all" %}selected{% endif %}>All my organisations</option>
+      {% for o in volunteering %}<option value="{{ o.id }}" {% if scope == o.id %}selected{% endif %}>{{ o.name }}</option>{% endfor %}
+    </select></label>
+  <label class="check"><input type="checkbox" name="preferred_only" value="1" {% if preferred_only %}checked{% endif %}> Preferred causes only</label>
+  <button type="submit">Apply</button>
+</form>
+<p class="muted">Ranked by preferred cause, then how many required skills you cover, then optional skills you offer.</p>
+{% if result.withheld %}<p class="pending">{{ result.withheld.reason }}</p>
+{% else %}
+  {% for m in result.matches %}{{ match_card(m) }}{% else %}<p class="muted">No matches with these filters.</p>{% endfor %}
+  {{ exclusions(result.excluded) }}
+{% endif %}
+{% endblock %}

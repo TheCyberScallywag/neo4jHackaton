@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% from "macros.html" import skills %}
+{% block title %}{{ org.name }} projects{% endblock %}
+{% block content %}
+<h1>{{ org.name }}: verified projects</h1>
+<p><a class="button" href="/submissions/new?org={{ org.id }}">Suggest a project</a></p>
+{% for p in projects %}
+<article class="card">
+  <h3><a href="/o/{{ org.id }}/projects/{{ p.project }}">{{ p.title }}</a></h3>
+  <p class="meta">{{ p.cause_name }} · revision {{ p.revision }}</p>
+  <p>{{ p.summary }}</p>
+  <p>Required: {{ skills(p.required_names) }}</p>
+  {% if p.optional_names %}<p>Optional: {{ skills(p.optional_names, "opt") }}</p>{% endif %}
+</article>
+{% else %}<p class="muted">No published projects yet.</p>{% endfor %}
+{% endblock %}

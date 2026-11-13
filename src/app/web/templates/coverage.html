@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}{{ org.name }} coverage{% endblock %}
+{% block content %}
+<h1>{{ org.name }}: who might help, and what is still needed</h1>
+{% if coverage.withheld %}<p class="pending">{{ coverage.withheld.reason }}</p>
+{% else %}{% for p in coverage.projects %}{% include "_coverage_table.html" %}{% else %}<p class="muted">No published projects.</p>{% endfor %}{% endif %}
+{% endblock %}

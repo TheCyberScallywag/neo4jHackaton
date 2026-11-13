@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>One volunteer account. Every organisation you choose to help.</h1>
+  <p>Keep one skills profile, choose which organisations see you, and get matches that explain
+     themselves: which of your skills fit, which cause you share, and what is still needed.</p>
+  <p><a class="button" href="/signup">Create an account</a> <a class="button secondary" href="/signin">Sign in</a></p>
+</section>
+<section class="grid">
+  <article class="card"><h3>Volunteers</h3><p>Say which skills you have, which you offer and which you never want to be matched on. Prefer or exclude causes.</p></article>
+  <article class="card"><h3>Organisations</h3><p>Reviewers verify suggested projects before they are published. Coordinators see eligible candidates and the skills still missing.</p></article>
+  <article class="card"><h3>Graph-backed</h3><p>Matches are decided by a Relate graph query over organisations, projects, causes and skills, so every result carries its explanation.</p></article>
+</section>
+{% endblock %}

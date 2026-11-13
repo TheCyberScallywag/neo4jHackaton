@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}{{ org.name }} review queue{% endblock %}
+{% block content %}
+<h1>{{ org.name }}: suggestions</h1>
+<p class="muted">Only reviewers of {{ org.name }} see this list. You cannot decide on your own suggestions.</p>
+<table>
+  <thead><tr><th>Title</th><th>Author</th><th>State</th><th>Revision</th><th>Updated</th></tr></thead>
+  <tbody>
+  {% for s in queue %}<tr><td><a href="/submissions/{{ s.id }}">{{ s.title }}</a></td><td>{{ s.author_name }}{% if s.author_id == session.user_id %} (you){% endif %}</td><td><span class="state {{ s.state }}">{{ s.state|state_label }}</span></td><td>{{ s.current_revision }}</td><td>{{ s.updated_at[:16]|replace("T", " ") }}</td></tr>
+  {% else %}<tr><td colspan="5" class="muted">Nothing here yet.</td></tr>{% endfor %}
+  </tbody>
+</table>
+{% endblock %}

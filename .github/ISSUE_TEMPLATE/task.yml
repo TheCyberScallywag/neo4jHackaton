@@ -1,0 +1,14 @@
+name: Task
+description: Chore, refactor, infra or docs work
+labels: [task]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What needs doing
+    validations: { required: true }
+  - type: textarea
+    id: done
+    attributes:
+      label: Definition of done
+      value: "- [ ] Tests added/updated\n- [ ] `uv run task verify` passes\n"

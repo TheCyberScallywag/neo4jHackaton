@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% from "macros.html" import skills, draft_fields %}
+{% block title %}{{ sub.current.title }}{% endblock %}
+{% block content %}
+<p class="meta">Suggestion to {{ sub.org_name }} by {{ sub.author_name }}</p>
+<h1>{{ sub.current.title }}</h1>
+<p><span class="state {{ sub.state }}">{{ sub.state|state_label }}</span> · revision {{ sub.current_revision }}</p>
+<p>{{ sub.current.summary }}</p>
+<p>Cause: {{ catalogue().cause_name(sub.current.cause_id) }}</p>
+<p>Required: {{ skills(sub.current.required|map("skill_name")) }}</p>
+{% if sub.current.optional %}<p>Optional: {{ skills(sub.current.optional|map("skill_name"), "opt") }}</p>{% endif %}
+{% if sub.approved_revision %}<p class="muted">Verified: revision {{ sub.approved_revision }} approved by {{ sub.approved_by_name }} at {{ sub.approved_at[:16]|replace("T", " ") }} UTC.{% if sub.published_at %} Published to the matching graph at {{ sub.published_at[:16]|replace("T", " ") }} UTC.{% endif %}</p>{% endif %}
+{% if sub.state == "published" %}<p><a href="/o/{{ sub.org_id }}/projects/{{ sub.id }}">View the published project and its matches</a></p>{% endif %}
+
+<h2>Review history</h2>
+<ul class="list">
+{% for r in sub.reviews %}
+  <li><span class="state {{ r.action }}">{{ r.action|state_label }}</span> revision {{ r.revision }} by {{ r.reviewer_name }}: “{{ r.reason_for_author }}”
+  {% if sub.is_reviewer and r.private_note %}<br><span class="muted">Private note (reviewers only): {{ r.private_note }}</span>{% endif %}</li>
+{% else %}<li class="muted">Awaiting review.</li>{% endfor %}
+</ul>
+
+{% if sub.can_review %}
+<form method="post" action="/o/{{ sub.org_id }}/review/{{ sub.id }}" class="card">
+  <h2>Review revision {{ sub.current_revision }}</h2>
+  <input type="hidden" name="csrf_token" value="{{ csrf }}">
+  <input type="hidden" name="revision" value="{{ sub.current_revision }}">
+  <input type="hidden" name="version" value="{{ sub.version }}">
+  <label>Decision
+    <select name="action" required>
+      <option value="approved">Approve and activate</option>
+      <option value="changes_requested">Request scoping detail</option>
+      <option value="rejected">Reject</option>
+    </select></label>
+  <label>Reason (shown to the author) <textarea name="reason" required minlength="3" maxlength="1000" rows="2"></textarea></label>
+  <label>Private note (reviewers of {{ sub.org_name }} only) <textarea name="private_note" maxlength="2000" rows="2"></textarea></label>
+  <button type="submit">Record decision</button>
+</form>
+{% elif sub.is_reviewer and sub.is_author and sub.state == "submitted" %}
+<p class="muted">You wrote this suggestion, so another reviewer must decide on it.</p>
+{% endif %}
+
+{% if sub.can_withdraw %}
+<form method="post" action="/o/{{ sub.org_id }}/projects/{{ sub.id }}/withdraw" class="card danger">
+  <input type="hidden" name="csrf_token" value="{{ csrf }}">
+  <input type="hidden" name="version" value="{{ sub.version }}">
+  <label>Withdraw published project <input name="reason" required minlength="3" maxlength="1000" placeholder="Reason, shown to the author"></label>
+  <button type="submit" class="danger">Withdraw</button>
+</form>
+{% endif %}
+
+{% if sub.can_revise %}
+<form method="post" action="/submissions/{{ sub.id }}/revise" class="card">
+  <h2>Revise and resubmit</h2>
+  <input type="hidden" name="csrf_token" value="{{ csrf }}">
+  <input type="hidden" name="version" value="{{ sub.version }}">
+  {{ draft_fields({"title": sub.current.title, "summary": sub.current.summary, "cause_id": sub.current.cause_id, "required": sub.current.required, "optional": sub.current.optional}) }}
+  <button type="submit">Resubmit</button>
+</form>
+{% endif %}
+{% endblock %}

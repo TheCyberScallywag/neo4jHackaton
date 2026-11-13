@@ -1,0 +1,161 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start"><ion-menu-button></ion-menu-button></ion-buttons>
+    <ion-title>Profile</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  @if (profile(); as p) {
+    <ion-list inset data-section="onboarding">
+      <ion-item lines="none">
+        <ion-label>
+          <p>Onboarding status</p>
+          <h2 data-testid="status">{{ p.status_label }}</h2>
+        </ion-label>
+      </ion-item>
+      @if (p.can_submit_for_vetting) {
+        <ion-item lines="none">
+          <ion-label class="ion-text-wrap"><p>Offer at least one skill and save, then submit your profile. A moderator checks it before you can be matched to projects.</p></ion-label>
+        </ion-item>
+        <ion-item lines="none">
+          <ion-button (click)="submitForVetting()" [disabled]="busy() || dirty()">Submit for vetting</ion-button>
+        </ion-item>
+      }
+    </ion-list>
+    <ion-list inset>
+      <ion-item>
+        <ion-input
+          label="Display name (shown to organisations you join)"
+          labelPlacement="stacked"
+          [maxlength]="60"
+          [value]="displayName()"
+          (ionInput)="displayName.set($event.detail.value ?? '')"
+        ></ion-input>
+      </ion-item>
+    </ion-list>
+
+    <ion-accordion-group [multiple]="true" [value]="['skills']" data-testid="profile-accordions">
+      <ion-accordion value="skills">
+        <ion-item slot="header" color="light">
+          <ion-label>Skills</ion-label>
+          <ion-note slot="end">{{ offeredCount() }} offered · {{ excludedCount() }} excluded</ion-note>
+        </ion-item>
+        <div slot="content">
+          <ion-note class="hint">
+            <strong>Offer</strong> to be matched on a skill. <strong>Exclude</strong> means you're never matched to a project that requires it.
+          </ion-note>
+          <ion-accordion-group [multiple]="true" class="sub" data-testid="skill-types">
+            @for (group of groups(); track group.category) {
+              <ion-accordion [value]="group.category" [attr.data-category]="group.category">
+                <ion-item slot="header">
+                  <ion-label>{{ group.category }}</ion-label>
+                  <ion-note slot="end">{{ count(group, 'offers') }} offered · {{ count(group, 'exclude') }} excluded</ion-note>
+                </ion-item>
+                <ion-list slot="content">
+                  @for (skill of group.skills; track skill.id) {
+                    <ion-item>
+                      <ion-select
+                        [label]="skill.name"
+                        interface="popover"
+                        [value]="skills()[skill.id]"
+                        (ionChange)="setSkill(skill.id, $event.detail.value)"
+                        [attr.data-skill]="skill.id"
+                      >
+                        @for (option of skillStates; track option.value) {
+                          <ion-select-option [value]="option.value">{{ option.label }}</ion-select-option>
+                        }
+                      </ion-select>
+                    </ion-item>
+                  }
+                </ion-list>
+              </ion-accordion>
+            }
+          </ion-accordion-group>
+        </div>
+      </ion-accordion>
+
+      <ion-accordion value="causes">
+        <ion-item slot="header" color="light"><ion-label>Causes</ion-label></ion-item>
+        <div slot="content">
+          <ion-note class="hint">Preferred causes rank first. With no preference you're matched on skills for every cause you haven't excluded.</ion-note>
+          <ion-list>
+            @for (cause of p.causes; track cause.id) {
+              <ion-item>
+                <ion-select
+                  [label]="cause.name"
+                  interface="popover"
+                  [value]="causes()[cause.id]"
+                  (ionChange)="setCause(cause.id, $event.detail.value)"
+                >
+                  @for (option of causeStances; track option.value) {
+                    <ion-select-option [value]="option.value">{{ option.label }}</ion-select-option>
+                  }
+                </ion-select>
+              </ion-item>
+            }
+          </ion-list>
+        </div>
+      </ion-accordion>
+
+      <ion-accordion value="active">
+        <ion-item slot="header" color="light">
+          <ion-label>Active projects</ion-label>
+          <ion-badge slot="end" color="secondary">{{ p.projects.active.length }}</ion-badge>
+        </ion-item>
+        <div slot="content">
+          @if (p.projects.matches_withheld; as reason) {
+            <ion-text color="warning"><p class="hint">{{ reason }} Matched projects will reappear shortly.</p></ion-text>
+          }
+          <ion-list data-testid="active-projects">
+            @for (project of p.projects.active; track project.id) {
+              <ion-item>
+                <ion-label>
+                  <h3>{{ project.title }}</h3>
+                  <p>{{ project.organisation }} · {{ project.relation === 'suggested' ? 'You suggested this' : 'You match this' }}</p>
+                  @if (project.detail) { <p>{{ project.detail }}</p> }
+                </ion-label>
+                <ion-note slot="end">{{ stateLabel(project.state) }}</ion-note>
+              </ion-item>
+            } @empty {
+              <ion-item><ion-label>No active projects yet. Offer some skills above.</ion-label></ion-item>
+            }
+          </ion-list>
+        </div>
+      </ion-accordion>
+
+      <ion-accordion value="past">
+        <ion-item slot="header" color="light">
+          <ion-label>Past projects</ion-label>
+          <ion-badge slot="end" color="medium">{{ p.projects.past.length }}</ion-badge>
+        </ion-item>
+        <div slot="content">
+          <ion-list data-testid="past-projects">
+            @for (project of p.projects.past; track project.id) {
+              <ion-item>
+                <ion-label>
+                  <h3>{{ project.title }}</h3>
+                  <p>{{ project.organisation }} · You suggested this</p>
+                </ion-label>
+                <ion-note slot="end">{{ stateLabel(project.state) }}</ion-note>
+              </ion-item>
+            } @empty {
+              <ion-item><ion-label>No past projects.</ion-label></ion-item>
+            }
+          </ion-list>
+        </div>
+      </ion-accordion>
+    </ion-accordion-group>
+  }
+  @if (message(); as m) {
+    <ion-text [color]="m.color" role="status"><p class="ion-padding-horizontal">{{ m.text }}</p></ion-text>
+  }
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-button expand="block" class="ion-padding-horizontal" [disabled]="!dirty() || busy()" (click)="save()">
+      Save profile
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

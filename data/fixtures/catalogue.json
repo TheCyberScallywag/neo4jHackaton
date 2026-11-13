@@ -1,0 +1,27 @@
+{
+  "_comment": "Shared catalogue. Cause and skill vocabulary extends the reference PoC's data/fixtures.json; IDs are canonical kebab-case and never change once published.",
+  "causes": [
+    {"id": "homelessness", "name": "Homelessness"},
+    {"id": "education", "name": "Education"},
+    {"id": "food-security", "name": "Food Security"},
+    {"id": "environment", "name": "Environment"},
+    {"id": "digital-inclusion", "name": "Digital Inclusion"}
+  ],
+  "skills": [
+    {"id": "cooking", "name": "Community cooking", "category": "Hospitality"},
+    {"id": "van-driving", "name": "Van driving", "category": "Transport"},
+    {"id": "active-listening", "name": "Active listening", "category": "Community support"},
+    {"id": "welsh-translation", "name": "Welsh translation", "category": "Languages"},
+    {"id": "literacy-tutoring", "name": "Literacy tutoring", "category": "Education"},
+    {"id": "bookkeeping", "name": "Bookkeeping", "category": "Finance"},
+    {"id": "fundraising", "name": "Fundraising", "category": "Charity operations"},
+    {"id": "carpentry", "name": "Carpentry", "category": "Practical trades"},
+    {"id": "gardening", "name": "Gardening", "category": "Practical trades"},
+    {"id": "first-aid", "name": "First aid", "category": "Health and safety"},
+    {"id": "data-analysis", "name": "Spreadsheet and data analysis", "category": "Technology"},
+    {"id": "python", "name": "Python programming", "category": "Technology"},
+    {"id": "data-visualisation", "name": "Data visualisation", "category": "Technology"},
+    {"id": "web-development", "name": "Web development", "category": "Technology"},
+    {"id": "security-awareness", "name": "Cyber security awareness", "category": "Technology"}
+  ]
+}
