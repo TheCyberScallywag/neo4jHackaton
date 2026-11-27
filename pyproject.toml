@@ -15,7 +15,7 @@ dependencies = [
     "argon2-cffi>=25.1",
     # Embedded Relate engine. Pinned to the same version as the tested `relate` CLI (1.0.1), so
     # the bundled data/demo.rl can be opened by either.
-    "relate-db==1.0.1",
+    "relate-db==1.2.0",
 ]
 
 [project.optional-dependencies]
